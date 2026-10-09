@@ -1,4 +1,10 @@
 # luma
+
+# 🚀 LUMA STUDIO CANLI!
+### 👉 https://lumastudyo.netlify.app/
+
+Türkiye'den geliştirilen programlama dili Luma.
+Chrome'dan aç -> Ana ekrana ekle ile uygulama olarak kur!
 Luma
 
 Tek dil. Daha aydınlık bir geliştirme deneyimi.
