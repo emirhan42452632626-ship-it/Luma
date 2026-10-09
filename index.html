@@ -1,0 +1,429 @@
+
+<!doctype html>
+<html lang="tr">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c12">
+<meta name="description" content="Luma Studio — mobil öncelikli Luma kod editörü">
+<title>Luma Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0c12;--panel:#12141d;--line:#282b39;--text:#f4f3fb;--muted:#9297ad;--purple:#b59aff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,-apple-system,Segoe UI,sans-serif}
+.topbar{height:62px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);background:rgba(17,18,27,.94);backdrop-filter:blur(18px);position:sticky;top:0;z-index:2}
+.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#e4d9ff 0%,#a78bfa 48%,#7554d8 100%);box-shadow:0 5px 18px #8b5cf633;display:grid;place-items:center;color:#1b1032;font-weight:950;font-size:22px}
+.brand{font-weight:850;letter-spacing:.07em;white-space:nowrap}
+.spacer{flex:1}
+.btn{border:1px solid #353849;background:#1a1c27;color:#f5f3ff;border-radius:10px;padding:10px 14px;font-weight:750;white-space:nowrap;transition:transform .16s,border-color .16s,background .16s}
+.btn:active{transform:scale(.97)}
+.btn.run{background:linear-gradient(135deg,#cbbaff,#a78bfa);color:#171025;border-color:#b7a0ff;box-shadow:0 4px 16px #a78bfa22}
+.tabs{height:48px;display:flex;align-items:stretch;gap:4px;padding:0 12px;background:#111117;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;background:transparent;color:var(--muted);padding:0 15px;border-bottom:2px solid transparent;white-space:nowrap;font-size:12px;font-weight:650}
+.tab.active{color:#eee8ff;background:#1b1a25;border-bottom-color:var(--purple)}
+.tabadd{border:0;background:transparent;color:var(--purple);font-size:20px;padding:0 12px}
+.main{padding:18px 14px;max-width:1100px;margin:auto}
+.editor-shell{border:1px solid #2a2d3c;border-radius:15px;overflow:hidden;background:#0f1119;box-shadow:0 18px 55px #0002}
+.editorhead{display:flex;justify-content:space-between;align-items:center;background:#151722;padding:13px 15px}
+.filelabel{display:flex;align-items:center;gap:9px;font-weight:750}
+.filelabel:before{content:"";width:8px;height:8px;border-radius:50%;background:#b59aff;box-shadow:0 0 10px #b59aff88}
+.hint{font-size:11px;color:var(--muted)}
+.editor-wrap{display:flex;min-height:300px;background:#0e1017}
+.gutter{padding:16px 12px;color:#555b70;text-align:right;user-select:none;font:13px/1.75 ui-monospace,monospace;white-space:pre;border-right:1px solid #222532;min-width:42px}
+textarea{display:block;width:100%;height:calc(100dvh - 240px);min-height:320px;resize:vertical;background:#0e1017;color:#dcd8ee;border:0;border-radius:0;padding:16px;font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;tab-size:2;white-space:pre;overflow:auto;caret-color:#c4b5fd}
+textarea:focus{background:#10121b;border-color:#8c70df}
+.editor-wrap textarea{border:0!important;border-radius:0!important;box-shadow:none!important}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;color:var(--muted);font-size:12px}
+.message{overflow-wrap:anywhere}
+.toast{position:fixed;bottom:18px;left:50%;transform:translate(-50%,15px);opacity:0;transition:.2s;background:#e9ddff;color:#1b1030;border-radius:10px;padding:10px 15px;font-weight:750;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:520px){
+.topbar{padding:0 9px;gap:7px;height:60px}
+.brand{font-size:13px}
+.btn{padding:9px 10px;font-size:12px}
+.logo{width:30px;height:30px}
+.main{padding:10px 8px}
+.editor-shell{border-radius:12px}
+.editor-wrap textarea{height:calc(100dvh - 225px);min-height:300px;padding:12px 10px;font-size:12px}
+.gutter{padding:12px 8px;font-size:12px;min-width:31px}
+.editorhead{padding:11px 12px!important}
+.tabs{padding:0 6px}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">L</div>
+  <div class="brand">LUMA STUDIO</div>
+  <div class="spacer"></div>
+  <button class="btn" id="saveBtn">💾 Kaydet</button>
+  <button class="btn run" id="runBtn">▶ Çalıştır</button>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="Dosya sekmeleri">
+  <button class="tab active" data-file="index.luma">index.luma</button>
+  <button class="tab" data-file="shop.luma">shop.luma</button>
+  <button class="tabadd" id="addBtn" title="Yeni dosya">＋</button>
+</nav>
+
+<main class="main">
+  <section class="editor-shell">
+    <div class="editorhead">
+      <span class="filelabel" id="fileLabel">index.luma</span>
+      <span class="hint">Luma kod editörü</span>
+    </div>
+    <div class="editor-wrap">
+      <div class="gutter" id="gutter">1</div>
+      <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Luma kod yazma alanı">page Home {
+  title: "Merhaba Luma"
+
+  box [bg: #191923, radius: 14px, pad: 22px, gap: 12px] {
+    text "Merhaba Dünya!" [color: #c4b5fd, size: 28px, weight: bold]
+    text "Luma çalışıyor." [color: #b8b8c9, size: 15px]
+
+    button "Tıkla" [bg: #a78bfa, color: #160c2b, pad: 12px, radius: 9px] {
+      onClick {
+        notify("Luma çalışıyor!")
+      }
+    }
+  }
+}</textarea>
+    </div>
+  </section>
+  <div class="bottom">
+    <span id="status" class="message">Hazır · Kodunu aşağıya yaz.</span>
+    <span id="count">0 satır</span>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const editor = $('code');
+const starter = editor.value;
+
+let active = 'index.luma';
+let files = {
+  'index.luma': starter,
+  'shop.luma': `page Shop {
+  title: "Luma Shop"
+
+  box [bg: #191923, radius: 14px, pad: 20px, gap: 10px] {
+    text "Luma Shop" [color: #c4b5fd, size: 26px, weight: bold]
+    text "Mağazana hoş geldin!" [color: #b8b8c9, size: 14px]
+  }
+}`
+};
+
+function toast(s) {
+  $('toast').textContent = s;
+  $('toast').classList.add('show');
+  setTimeout(() => $('toast').classList.remove('show'), 1800);
+}
+
+function count() {
+  const n = editor.value.split('\n').length;
+  $('count').textContent = n + ' satır';
+  $('gutter').textContent = Array.from(
+    {length: n}, (_, i) => i + 1
+  ).join('\n');
+}
+
+function saveCurrent() {
+  files[active] = editor.value;
+
+  try {
+    localStorage.setItem('luma-studio-files', JSON.stringify(files));
+  } catch (e) {}
+
+  const blob = new Blob([editor.value], {
+    type: 'text/plain;charset=utf-8'
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.download = active.endsWith('.luma') ? active : active + '.luma';
+  a.style.display = 'none';
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+  toast('Dosya indirme başlatıldı');
+  $('status').textContent = 'Dosya telefona indirme için hazır · ' + active;
+}
+
+function saveToStorage() {
+  saveCurrent();
+}
+
+function activate(name) {
+  files[active] = editor.value;
+  active = name;
+  editor.value = files[name] ?? '';
+
+  $('fileLabel').textContent = name;
+
+  document.querySelectorAll('.tab[data-file]').forEach(b => {
+    b.classList.toggle('active', b.dataset.file === name);
+  });
+
+  $('status').textContent = 'Düzenleniyor · ' + name;
+  count();
+}
+
+try {
+  const saved = localStorage.getItem('luma-studio-files');
+
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    Object.assign(files, parsed);
+    editor.value = files[active] || starter;
+  }
+} catch (e) {}
+
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-file]');
+  if (b) activate(b.dataset.file);
+});
+
+$('addBtn').addEventListener('click', () => {
+  let name = prompt(
+    'Yeni dosyanın adını yaz (ör. main.luma):',
+    'untitled.luma'
+  );
+
+  if (name === null) return;
+
+  name = name.trim();
+
+  if (!name) {
+    toast('Dosya adı boş olamaz');
+    return;
+  }
+
+  if (/[\\/:*?"<>|]/.test(name)) {
+    toast('Dosya adında \\ / : * ? " < > | kullanılamaz');
+    return;
+  }
+
+  if (files[name] !== undefined) {
+    toast('Bu isimde bir dosya zaten var');
+    activate(name);
+    return;
+  }
+
+  files[name] = `page NewPage {
+  title: "Yeni Luma Sayfası"
+
+  text "Merhaba!" [color: #c4b5fd, size: 24px]
+}`;
+
+  const b = document.createElement('button');
+  b.className = 'tab';
+  b.dataset.file = name;
+  b.textContent = name;
+
+  $('tabs').insertBefore(b, $('addBtn'));
+  activate(name);
+  toast('Yeni dosya oluşturuldu: ' + name);
+});
+
+$('saveBtn').addEventListener('click', saveToStorage);
+
+function style(raw) {
+  const s = {};
+
+  raw.split(',').forEach(p => {
+    let x = p.indexOf(':');
+    if (x < 0) return;
+
+    let k = p.slice(0, x).trim();
+    let v = p.slice(x + 1).trim();
+
+    const m = {
+      bg: 'background',
+      pad: 'padding',
+      radius: 'borderRadius',
+      size: 'fontSize',
+      weight: 'fontWeight',
+      width: 'width',
+      height: 'height',
+      color: 'color',
+      gap: 'gap'
+    };
+
+    if (!m[k]) return;
+    if (k === 'width' && v === 'full') v = '100%';
+    if (k === 'size' && !/[a-z%]/i.test(v)) v += 'px';
+    if (k === 'weight' && v === 'bold') v = '700';
+
+    s[m[k]] = v;
+  });
+
+  return s;
+}
+
+function run() {
+  files[active] = editor.value;
+  let src = editor.value;
+
+  if (!active.endsWith('.luma')) {
+    toast('Hata: Dosya uzantısı .luma olmalı');
+    $('status').textContent = 'Çalıştırılamadı: dosya uzantısı .luma değil';
+
+    alert(
+      'Luma çalıştırma hatası\n' +
+      'Bu dosyanın uzantısı .luma değil. ' +
+      'Dosya adını örneğin main.luma olarak değiştirip tekrar dene.'
+    );
+    return;
+  }
+
+  if (!/\bpage\s+\w+\s*\{/.test(src)) {
+    toast('Hata: page Name { ile başlamalı');
+    $('status').textContent = 'Çalıştırılamadı: page tanımı bulunamadı';
+    return;
+  }
+
+  const win = window.open('about:blank', '_blank');
+
+  if (!win) {
+    toast('Yeni sayfa açılamadı. Açılır pencere iznini kontrol et.');
+    return;
+  }
+
+  const doc = win.document;
+  doc.open();
+
+  doc.write(`<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luma Çıktısı</title>
+<style>
+body {
+  margin: 0;
+  padding: 24px;
+  background: #0d0d12;
+  color: #f5f3ff;
+  font: 15px system-ui;
+  display: flex;
+  justify-content: center;
+}
+.app { width: 100%; max-width: 560px; }
+.card { display: flex; flex-direction: column; gap: 12px; }
+.luma-btn { border: 0; cursor: pointer; font: inherit; }
+</style>
+</head>
+<body>
+<main class="app" id="app"></main>
+<script>
+function lumaNotify(t) { alert(t); }
+<\/script>
+</body>
+</html>`);
+
+  doc.close();
+
+  const title =
+    (src.match(/title\s*:\s*["']([^"']*)["']/) || [])[1]
+    || 'Luma Çıktısı';
+
+  win.document.title = title + ' · Luma';
+
+  const root = win.document.getElementById('app');
+
+  const tokens = src.match(
+    /\b(?:box|text|button)\b(?:\s+#[\w-]+)?(?:\s+"(?:\\.|[^"\\])*"|\s*\[[^\]]*\])?/g
+  ) || [];
+
+  let stack = [root];
+
+  for (let token of tokens) {
+    let type = (token.match(/^(box|text|button)/) || [])[1];
+    if (!type) continue;
+
+    let quoted = token.match(/"((?:\\.|[^"\\])*)"/);
+    let styles = token.match(/\[([^\]]*)\]/);
+
+    let el = win.document.createElement(
+      type === 'text' ? 'div' :
+      type === 'button' ? 'button' : 'section'
+    );
+
+    if (type === 'box') el.className = 'card';
+
+    if (quoted) {
+      el.textContent = quoted[1].replace(/\\"/g, '"');
+    }
+
+    if (styles) {
+      Object.assign(el.style, style(styles[1]));
+    }
+
+    if (type === 'button') {
+      el.className = 'luma-btn';
+
+      el.addEventListener('click', () => {
+        const n = src.match(
+          /notify\s*\(\s*["']([^"']*)["']\s*\)/
+        );
+
+        win.alert(n ? n[1] : 'Butona tıklandı');
+      });
+    }
+
+    if (type === 'box') {
+      stack[stack.length - 1].appendChild(el);
+      stack.push(el);
+    } else {
+      stack[stack.length - 1].appendChild(el);
+    }
+  }
+
+  if (!root.children.length) {
+    const p = win.document.createElement('p');
+    p.textContent =
+      'Bu dosyada görüntülenebilen box, text veya button bulunamadı.';
+    root.appendChild(p);
+  }
+
+  $('status').textContent = 'Çıktı yeni sayfada açıldı · ' + active;
+  toast('Luma yeni sayfada açıldı');
+}
+
+$('runBtn').addEventListener('click', run);
+
+editor.addEventListener('input', () => {
+  files[active] = editor.value;
+  count();
+  $('status').textContent = 'Kaydedilmemiş değişiklikler';
+});
+
+editor.addEventListener('scroll', () => {
+  $('gutter').scrollTop = editor.scrollTop;
+});
+
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+
+    const a = editor.selectionStart;
+    const b = editor.selectionEnd;
+
+    editor.setRangeText('  ', a, b, 'end');
+    count();
+  }
+});
+
+count();
+</script>
+</body>
+</html>
