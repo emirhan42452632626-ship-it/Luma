@@ -83,8 +83,32 @@ Fikirlerin, hata bildirimlerin ve katkıların bizim için değerlidir. Projeyi 
 
 📜 Lisans
 
-Lisans henüz belirlenmemiştir. Lisans dosyası eklenene kadar projeyi kullanma, değiştirme ve yeniden dağıtma koşullarını ayrıca kontrol etmelisin.
+Bu proje MIT Lisansı ile lisanslanmıştır.
+
+- Luma'yı istediğin gibi kullanabilirsin.
+- Projelerinde, sitelerinde, ticari işlerinde kullanabilirsin.
+- Tek şart: Luma'yı kullandığını belirtirsen seviniriz 💜
+
+Detaylar için `LICENSE` dosyasına bak.
 
 ---
 
-Luma — Türkiye'den doğan bir geliştirme fikri. 
+Luma — Türkiye'den doğan bir geliştirme fikri.
+
+🌙 Karşınızda Luma Studio!
+
+Kendi programlama dili projem Luma'yı geliştiriyorum. 💜🚀
+
+Bu daha başlangıç! Sizden gelen geri bildirimler, fikirler ve öneriler doğrultusunda Luma'yı geliştirmeye devam edeceğim.
+
+💬 Sizce hangi özellikler eklenmeli?
+🐛 Bir hata mı buldunuz?
+💡 Aklınızda bir fikir mi var? Yorumlara yazın!
+
+Her geri bildirim, Luma'nın gelişmesine katkı sağlayacak. 🫶
+
+🌐 https://lumastudyo.netlify.app/
+
+Luma Studio — Fikirlerine ışık tut. 🌌
+
+#LumaStudio #Luma #Yazılım #Programlama #WebGeliştirme #IndieDev 
